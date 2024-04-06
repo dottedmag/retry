@@ -173,8 +173,8 @@ func Do(ctx context.Context, cfg Config, fn func(ctx context.Context) error) err
 	if cfg.PreDelay > 0 {
 		select {
 		case <-cfg.timeAfter(cfg.PreDelay): // Doesn't leak since Go 1.23, https://github.com/golang/go/issues/8898
-		case <-ctx.Done():
-			return ctx.Err()
+		case <-innerCtx.Done():
+			return innerCtx.Err()
 		}
 	}
 
@@ -204,8 +204,8 @@ func Do(ctx context.Context, cfg Config, fn func(ctx context.Context) error) err
 
 		select {
 		case <-cfg.timeAfter(jitteredDelay): // Doesn't leak since Go 1.23, https://github.com/golang/go/issues/8898
-		case <-ctx.Done():
-			return ctx.Err()
+		case <-innerCtx.Done():
+			return innerCtx.Err()
 		}
 
 		delay = time.Duration(float64(delay) * cfg.Scale)

@@ -235,3 +235,49 @@ func TestResetTimeout(t *testing.T) {
 		t.Fatalf("Do was supposed to return successfully, returned %v", err)
 	}
 }
+
+func TestTimeoutPreDelay(t *testing.T) {
+	cfg := Config{Delay: 100 * time.Hour, Timeout: time.Microsecond, PreDelay: 100 * time.Hour}
+	var fnCalled bool
+	err := Do(context.Background(), cfg, func(ctx context.Context) error {
+		fnCalled = true
+		return nil
+	})
+	if fnCalled {
+		t.Fatalf("Do was supposed to return before calling the function")
+	}
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("Do was supposed to return 'dealine exceeded', returned %v", err)
+	}
+}
+
+func TestTimeoutInFn(t *testing.T) {
+	cfg := Config{Delay: 100 * time.Hour, Timeout: time.Microsecond}
+	var fnCalled int
+	err := Do(context.Background(), cfg, func(ctx context.Context) error {
+		fnCalled++
+		<-ctx.Done()
+		return ctx.Err()
+	})
+	if fnCalled != 1 {
+		t.Fatalf("Do was supposed to call fn once")
+	}
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("Do was supposed to return 'dealine exceeded', returned %v", err)
+	}
+}
+
+func TestTimeoutDelay(t *testing.T) {
+	cfg := Config{Delay: 100 * time.Hour, Timeout: time.Microsecond}
+	var fnCalled int
+	err := Do(context.Background(), cfg, func(ctx context.Context) error {
+		fnCalled++
+		return ErrRetry{errors.New("do it again")}
+	})
+	if fnCalled != 1 {
+		t.Fatalf("Do was supposed to call function once and then return")
+	}
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("Do was supposed to return 'dealine exceeded', returned %v", err)
+	}
+}
