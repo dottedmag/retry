@@ -5,6 +5,7 @@ import (
 	"log/slog"
 )
 
+// NoLog is a logger that discards all log messages
 var NoLog = slog.New(discardHandler{})
 
 type discardHandler struct{}

@@ -20,7 +20,7 @@ type Config struct {
 	// This field is required.
 	Delay time.Duration
 
-	// Scale is the exponential scale for delay.
+	// Scale is a exponential scale for delay.
 	//
 	// Defaults to 1 (no scaling, constant delay), can't be less than 1.
 	Scale float64
@@ -41,7 +41,7 @@ type Config struct {
 	// Defaults to no maximum.
 	MaxDelay time.Duration
 
-	// Timeout is a maximum time to retry.
+	// Timeout is a maximum total time to retry.
 	//
 	// If timeout is reached then the context passed to the called function
 	// will be called, and retry won't be attempted when the function returns.
@@ -50,7 +50,7 @@ type Config struct {
 	// for aborting the operation by timeout.
 	//
 	// Defaults to no timeout.
-	Timeout time.Duration // maximum time to retry, defaults to no timeout
+	Timeout time.Duration
 
 	// Logger is a logger for retries
 	//
@@ -117,7 +117,7 @@ func Restartable(err error) error {
 
 // Do runs fn with retries controlled by config
 //
-// fn triggers a retry by returning ErrRetry or ErrRestart
+// fn triggers a retry by returning ErrRetry or ErrRestart.
 // Any other return value ends the retry and is returned
 // to the caller.
 //
@@ -215,7 +215,7 @@ func Do(ctx context.Context, cfg Config, fn func(ctx context.Context) error) err
 	}
 }
 
-// Do1 is a version of Do with a one return value
+// Do1 is a version of Do with one return value
 func Do1[T any](ctx context.Context, cfg Config, fn func(ctx context.Context) (T, error)) (T, error) {
 	var ret T
 	err := Do(ctx, cfg, func(ctx context.Context) error {
