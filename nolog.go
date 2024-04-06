@@ -5,7 +5,7 @@ import (
 	"log/slog"
 )
 
-// NoLog is a logger that discards all log messages
+// NoLog is a logger that discards all log messages, to be removed once in stdlib
 var NoLog = slog.New(discardHandler{})
 
 type discardHandler struct{}
