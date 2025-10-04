@@ -208,10 +208,7 @@ func Do(ctx context.Context, cfg Config, fn func(ctx context.Context) error) err
 			return innerCtx.Err()
 		}
 
-		delay = time.Duration(float64(delay) * cfg.Scale)
-		if delay > cfg.MaxDelay {
-			delay = cfg.MaxDelay
-		}
+		delay = min(time.Duration(float64(delay)*cfg.Scale), cfg.MaxDelay)
 	}
 }
 
