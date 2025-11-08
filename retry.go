@@ -222,3 +222,15 @@ func Do1[T any](ctx context.Context, cfg Config, fn func(ctx context.Context) (T
 	})
 	return ret, err
 }
+
+// Do2 is a version of Do with two return values
+func Do2[T1, T2 any](ctx context.Context, cfg Config, fn func(ctx context.Context) (T1, T2, error)) (T1, T2, error) {
+	var ret1 T1
+	var ret2 T2
+	err := Do(ctx, cfg, func(ctx context.Context) error {
+		var err error
+		ret1, ret2, err = fn(ctx)
+		return err
+	})
+	return ret1, ret2, err
+}
